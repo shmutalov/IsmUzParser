@@ -43,6 +43,7 @@
             this.MessageList = new System.Windows.Forms.ListView();
             this.MessageListInfoColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.StatusProgressLabel = new System.Windows.Forms.Label();
+            this.NamesTableOriginColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // ParseButton
@@ -110,7 +111,8 @@
             this.NamesTableLetterColumn,
             this.NamesTableGenderColumn,
             this.NamesTableNameColumn,
-            this.NamesTableMeaningColumn});
+            this.NamesTableMeaningColumn,
+            this.NamesTableOriginColumn});
             this.NamesTable.GridLines = true;
             this.NamesTable.Location = new System.Drawing.Point(12, 291);
             this.NamesTable.MultiSelect = false;
@@ -131,7 +133,7 @@
             // NamesTableNameColumn
             // 
             this.NamesTableNameColumn.Text = "Name";
-            this.NamesTableNameColumn.Width = 300;
+            this.NamesTableNameColumn.Width = 200;
             // 
             // NamesTableMeaningColumn
             // 
@@ -177,6 +179,11 @@
             this.StatusProgressLabel.Text = "0%";
             this.StatusProgressLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // NamesTableOriginColumn
+            // 
+            this.NamesTableOriginColumn.Text = "Origin";
+            this.NamesTableOriginColumn.Width = 100;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -216,6 +223,7 @@
         private System.Windows.Forms.ListView MessageList;
         private System.Windows.Forms.ColumnHeader MessageListInfoColumn;
         private System.Windows.Forms.Label StatusProgressLabel;
+        private System.Windows.Forms.ColumnHeader NamesTableOriginColumn;
     }
 }
 
