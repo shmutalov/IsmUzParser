@@ -31,7 +31,6 @@
             this.ParseButton = new System.Windows.Forms.Button();
             this.StatusLabel = new System.Windows.Forms.Label();
             this.StatusProgress = new System.Windows.Forms.ProgressBar();
-            this.MessageList = new System.Windows.Forms.ListBox();
             this.RefreshNamesTableButton = new System.Windows.Forms.Button();
             this.FilterText = new System.Windows.Forms.TextBox();
             this.FindButton = new System.Windows.Forms.Button();
@@ -40,6 +39,10 @@
             this.NamesTableGenderColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NamesTableNameColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NamesTableMeaningColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.worker = new System.ComponentModel.BackgroundWorker();
+            this.MessageList = new System.Windows.Forms.ListView();
+            this.MessageListInfoColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.StatusProgressLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // ParseButton
@@ -50,6 +53,7 @@
             this.ParseButton.TabIndex = 0;
             this.ParseButton.Text = "Parse";
             this.ParseButton.UseVisualStyleBackColor = true;
+            this.ParseButton.Click += new System.EventHandler(this.ParseButton_Click);
             // 
             // StatusLabel
             // 
@@ -68,18 +72,6 @@
             this.StatusProgress.Name = "StatusProgress";
             this.StatusProgress.Size = new System.Drawing.Size(823, 23);
             this.StatusProgress.TabIndex = 2;
-            // 
-            // MessageList
-            // 
-            this.MessageList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.MessageList.FormattingEnabled = true;
-            this.MessageList.HorizontalScrollbar = true;
-            this.MessageList.Location = new System.Drawing.Point(12, 83);
-            this.MessageList.Name = "MessageList";
-            this.MessageList.ScrollAlwaysVisible = true;
-            this.MessageList.Size = new System.Drawing.Size(823, 173);
-            this.MessageList.TabIndex = 3;
             // 
             // RefreshNamesTableButton
             // 
@@ -102,7 +94,7 @@
             // FindButton
             // 
             this.FindButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.FindButton.Location = new System.Drawing.Point(760, 264);
+            this.FindButton.Location = new System.Drawing.Point(760, 262);
             this.FindButton.Name = "FindButton";
             this.FindButton.Size = new System.Drawing.Size(75, 23);
             this.FindButton.TabIndex = 6;
@@ -146,16 +138,56 @@
             this.NamesTableMeaningColumn.Text = "Meaning";
             this.NamesTableMeaningColumn.Width = 400;
             // 
+            // worker
+            // 
+            this.worker.WorkerReportsProgress = true;
+            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
+            this.worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.worker_ProgressChanged);
+            this.worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
+            // 
+            // MessageList
+            // 
+            this.MessageList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.MessageList.BackColor = System.Drawing.Color.Black;
+            this.MessageList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.MessageListInfoColumn});
+            this.MessageList.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.MessageList.FullRowSelect = true;
+            this.MessageList.Location = new System.Drawing.Point(12, 83);
+            this.MessageList.MultiSelect = false;
+            this.MessageList.Name = "MessageList";
+            this.MessageList.Size = new System.Drawing.Size(823, 173);
+            this.MessageList.TabIndex = 8;
+            this.MessageList.UseCompatibleStateImageBehavior = false;
+            this.MessageList.View = System.Windows.Forms.View.Details;
+            // 
+            // MessageListInfoColumn
+            // 
+            this.MessageListInfoColumn.Text = "Info";
+            this.MessageListInfoColumn.Width = 800;
+            // 
+            // StatusProgressLabel
+            // 
+            this.StatusProgressLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.StatusProgressLabel.Location = new System.Drawing.Point(760, 38);
+            this.StatusProgressLabel.Name = "StatusProgressLabel";
+            this.StatusProgressLabel.Size = new System.Drawing.Size(75, 13);
+            this.StatusProgressLabel.TabIndex = 9;
+            this.StatusProgressLabel.Text = "0%";
+            this.StatusProgressLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(847, 485);
+            this.Controls.Add(this.StatusProgressLabel);
+            this.Controls.Add(this.MessageList);
             this.Controls.Add(this.NamesTable);
             this.Controls.Add(this.FindButton);
             this.Controls.Add(this.FilterText);
             this.Controls.Add(this.RefreshNamesTableButton);
-            this.Controls.Add(this.MessageList);
             this.Controls.Add(this.StatusProgress);
             this.Controls.Add(this.StatusLabel);
             this.Controls.Add(this.ParseButton);
@@ -172,7 +204,6 @@
         private System.Windows.Forms.Button ParseButton;
         private System.Windows.Forms.Label StatusLabel;
         private System.Windows.Forms.ProgressBar StatusProgress;
-        private System.Windows.Forms.ListBox MessageList;
         private System.Windows.Forms.Button RefreshNamesTableButton;
         private System.Windows.Forms.TextBox FilterText;
         private System.Windows.Forms.Button FindButton;
@@ -181,6 +212,10 @@
         private System.Windows.Forms.ColumnHeader NamesTableGenderColumn;
         private System.Windows.Forms.ColumnHeader NamesTableNameColumn;
         private System.Windows.Forms.ColumnHeader NamesTableMeaningColumn;
+        private System.ComponentModel.BackgroundWorker worker;
+        private System.Windows.Forms.ListView MessageList;
+        private System.Windows.Forms.ColumnHeader MessageListInfoColumn;
+        private System.Windows.Forms.Label StatusProgressLabel;
     }
 }
 
