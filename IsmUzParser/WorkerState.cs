@@ -17,6 +17,8 @@ namespace IsmUzParser
 
     public class WorkerState
     {
+        private int logWriteCounter = 0;
+
         private TextWriter log;
         private BackgroundWorker worker;
 
@@ -25,6 +27,7 @@ namespace IsmUzParser
 
         public WorkerState(TextWriter log, BackgroundWorker worker)
         {
+            this.logWriteCounter = 0;
             this.log = log;
             this.worker = worker;
         }
@@ -39,6 +42,10 @@ namespace IsmUzParser
                 try
                 {
                     log.WriteLine(info);
+                    logWriteCounter++;
+
+                    if (logWriteCounter >= 32)
+                        log.Flush();
                 }
                 catch (Exception ex)
                 { }

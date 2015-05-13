@@ -64,6 +64,9 @@ namespace IsmUzParser
                     break;
             }
 
+            if (MessageList.Items.Count > 10)
+                MessageList.Items.RemoveAt(0);
+
             li.EnsureVisible();
         }
 

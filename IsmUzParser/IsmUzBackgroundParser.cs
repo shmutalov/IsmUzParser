@@ -284,9 +284,12 @@ namespace IsmUzParser
         //private IList<IsmModel> ParseAndGetNamesList(string letter)
         private IList<string> ParseAndGetNamesList(string letter)
         {
+            string encodedLetter = letter.Replace("‘", Uri.EscapeUriString("‘"));
+            encodedLetter = encodedLetter.Replace("’", Uri.EscapeUriString("’"));
+
             // Отправить GET запрос и получить байты страницы
             //byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/letters/" + WebUtility.UrlEncode(letter));
-            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/letters/" + letter.Replace("‘", Uri.EscapeUriString("‘")));
+            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/letters/" + encodedLetter);
             if (pageBytes != null)
             {
                 //List<IsmModel> parsedNames = new List<IsmModel>();
@@ -364,9 +367,12 @@ namespace IsmUzParser
         /// <returns>Возвратит информацию об имени <c>IsmModel</c>, иначе <c>null</c></returns>
         private IsmModel ParseAndGetName(string letter, string name)
         {
+            string encodedName = name.Replace("‘", Uri.EscapeUriString("‘"));
+            encodedName = encodedName.Replace("’", Uri.EscapeUriString("’"));
+
             // Отправить GET запрос и получить байты страницы
             //byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/names/" + WebUtility.UrlEncode(name));
-            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/names/" + name.Replace("‘", Uri.EscapeUriString("‘")));
+            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/names/" + encodedName);
 
             if (pageBytes != null)
             {
