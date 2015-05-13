@@ -33,7 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Distant.HttpRequests">
+    <Reference Include="Distant.HttpRequests, Version=1.0.5610.15456, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libraries\Distant.HttpRequests.dll</HintPath>
     </Reference>
     <Reference Include="HTMLparserLibDotNet20">
@@ -63,6 +64,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IIsmDataService.cs" />
+    <Compile Include="SqliteIsmDataService.cs" />
     <Compile Include="IsmModel.cs" />
     <Compile Include="IsmUzBackgroundParser.cs" />
     <Compile Include="MainWindow.cs">

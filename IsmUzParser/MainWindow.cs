@@ -13,11 +13,13 @@ namespace IsmUzParser
     public partial class MainWindow : Form
     {
         IsmUzBackgroundParser parser;
+        List<IsmModel> parsedList;
 
         public MainWindow()
         {
             InitializeComponent();
-            parser = new IsmUzBackgroundParser("http://ism.uz", true, "192.168.0.1:3128");
+            //parser = new IsmUzBackgroundParser("http://ism.uz", true, "192.168.0.2:3128");
+            parser = new IsmUzBackgroundParser("http://ism.uz", true, true);
         }
 
         private void AddStatusMessage(string message, WORKER_STATE_STATUS status)
@@ -38,6 +40,25 @@ namespace IsmUzParser
             }
 
             li.EnsureVisible();
+        }
+
+        private void UpdateNamesTable(IList<IsmModel> ismList)
+        {
+            NamesTable.Items.Clear();
+
+            if (ismList != null)
+            { 
+                foreach (IsmModel ism in ismList)
+                {
+                    ListViewItem li = NamesTable.Items.Add(ism.Letter);
+                    li.SubItems.Add(ism.Gender == GENDER.MALE ? "male" : "female");
+                    li.SubItems.Add(ism.Name);
+                    li.SubItems.Add(ism.Meaning);
+                    li.SubItems.Add(ism.Origin);
+
+                    li.BackColor = (ism.Gender == GENDER.MALE) ? Color.LightBlue : Color.LightPink;
+                }
+            }
         }
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)
@@ -76,12 +97,42 @@ namespace IsmUzParser
 
             if (parser == null)
                 return;
+            else
+            {
+                parsedList = (List<IsmModel>)parser.GetIsmList();
+                UpdateNamesTable(parsedList);
+            }
         }
 
         private void ParseButton_Click(object sender, EventArgs e)
         {
             ParseButton.Enabled = false;
             worker.RunWorkerAsync(parser);
+        }
+
+        private void FindButton_Click(object sender, EventArgs e)
+        {
+            if (parsedList == null)
+                return;
+
+            List<IsmModel> filteredList = null;
+
+            if (FilterText.Text.Length == 0)
+            {
+                filteredList = (List<IsmModel>)parsedList.Select(a => a).ToList();
+            }
+            else
+            {
+                filteredList = (List<IsmModel>)parsedList.Where(a => a.Name.Contains(FilterText.Text)).ToList();
+            }
+
+            UpdateNamesTable(filteredList);
+        }
+
+        private void FilterText_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                FindButton_Click(this, e);
         }
     }
 }

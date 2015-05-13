@@ -51,7 +51,31 @@ namespace IsmUzParser
             http = new PureDotNetHttpRequests();
 
             if (useProxy)
-                http.EnableProxy(proxyHost, proxyUser, proxyPassword, true);
+                http.EnableProxy(proxyHost, proxyUser, proxyPassword, false);
+
+            // Инициализация HTML-парсера
+            parser = new HTMLparser();
+
+            parser.bAutoKeepComments = false;
+            parser.bAutoKeepScripts = false;
+            parser.bAutoMarkClosedTagsWithParamsAsOpen = true;
+            parser.bCompressWhiteSpaceBeforeTag = true;
+            parser.bKeepRawHTML = false;
+            parser.bDecodeEntities = true;
+            parser.bDecodeMiniEntities = true;
+            parser.InitMiniEntities();
+            parser.SetEncoding(Encoding.UTF8);
+        }
+
+        public IsmUzBackgroundParser(string ismUzWebSiteUrl, bool useDefaultProxy = false, bool useNtlm = false)
+        {
+            ismUzUrl = ismUzWebSiteUrl;
+
+            // Инициализация HttpRequests
+            http = new PureDotNetHttpRequests();
+
+            if (useDefaultProxy)
+                http.EnableDefaultProxy(useNtlm);
 
             // Инициализация HTML-парсера
             parser = new HTMLparser();
@@ -122,7 +146,13 @@ namespace IsmUzParser
                 // Получем имена каждой буквы
                 foreach (string letter in letters)
                 {
-                    IList<IsmModel> parsedNames = ParseAndGetNamesList(letter);
+                    if (letter != "O‘")
+                        continue;
+
+                    state.SetState(percentage, String.Format("Parsing names for letter {0}...", letter), WORKER_STATE_STATUS.NORMAL);
+
+                    //IList<IsmModel> parsedNames = ParseAndGetNamesList(letter);
+                    IList<string> parsedNames = ParseAndGetNamesList(letter);
 
                     percentage += eachLetterWorkPercent;
 
@@ -133,8 +163,34 @@ namespace IsmUzParser
                     if (parsedNames != null && parsedNames.Count > 0)
                     {
                         totalNamesCount += parsedNames.Count;
-                        ismList.AddRange(parsedNames);
+                        //ismList.AddRange(parsedNames);
                         state.SetState(percentage, String.Format("Names for letter {0}: {1} names", letter, parsedNames.Count), WORKER_STATE_STATUS.NORMAL);
+                        int parsedNamesCount = 0;
+
+                        IList<IsmModel> parsedIsmList = new List<IsmModel>();
+
+                        foreach (string name in parsedNames)
+                        {
+                            parsedNamesCount++;
+
+                            //state.SetState(percentage, String.Format("[{0} of {1}] Parsing name: {2}", parsedNamesCount, parsedNames.Count, name), WORKER_STATE_STATUS.NORMAL);
+                            IsmModel ism = ParseAndGetName(letter, name);
+
+                            if (ism != null)
+                            {
+                                parsedIsmList.Add(ism);
+                                state.SetState(percentage, String.Format("[{0} of {1} : {2}%] PARSED name: {3}", parsedNamesCount, parsedNames.Count, (parsedNamesCount * 100 / parsedNames.Count), name), WORKER_STATE_STATUS.NORMAL);
+                            }
+                            else
+                            {
+                                state.SetState(percentage, String.Format("[{0} of {1} : {2}%] NOT PARSED name: {3}", parsedNamesCount, parsedNames.Count, (parsedNamesCount * 100 / parsedNames.Count), name), WORKER_STATE_STATUS.WARNING);
+                            }
+
+                            if (parsedNamesCount > 5)
+                                break;
+                        }
+
+                        ismList.AddRange(parsedIsmList);
                     }
                     // Имена для данной буквы не получены
                     else
@@ -158,7 +214,8 @@ namespace IsmUzParser
         {
             // Отправить GET запрос и получить байты страницы
             byte[] pageBytes = http.SendGetRequest(ismUzUrl);
-            
+            string page = Encoding.UTF8.GetString(pageBytes);
+
             if (pageBytes != null)
             {
                 List<string> parsedLetters = new List<string>();
@@ -224,14 +281,16 @@ namespace IsmUzParser
         /// </summary>
         /// <param name="letter">Начальная буква имени</param>
         /// <returns>При успешной обработке возваратит список имен, иначе <c>null</c></returns>
-        private IList<IsmModel> ParseAndGetNamesList(string letter)
+        //private IList<IsmModel> ParseAndGetNamesList(string letter)
+        private IList<string> ParseAndGetNamesList(string letter)
         {
             // Отправить GET запрос и получить байты страницы
-            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/letter/" + WebUtility.UrlEncode(letter));
-
+            //byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/letters/" + WebUtility.UrlEncode(letter));
+            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/letters/" + letter.Replace("‘", Uri.EscapeUriString("‘")));
             if (pageBytes != null)
             {
-                List<IsmModel> parsedNames = new List<IsmModel>();
+                //List<IsmModel> parsedNames = new List<IsmModel>();
+                List<string> parsedNames = new List<string>();
 
                 parser.Init(pageBytes);
                 parser.SetEncoding(Encoding.UTF8);
@@ -246,7 +305,7 @@ namespace IsmUzParser
                     if (chunk.oType == HTMLchunkType.OpenTag)
                     {
                         if (chunk.sTag.Equals("ol", StringComparison.InvariantCultureIgnoreCase)
-                            && chunk.GetParamValue("class").Equals("names-list"))
+                            && chunk.GetParamValue("class").Contains("names-list"))
                         {
                             chunk = null;
 
@@ -263,17 +322,21 @@ namespace IsmUzParser
 
                                         if (t_chunk != null && t_chunk.oType == HTMLchunkType.Text)
                                         {
-                                            // декодируем строку
+                                            // декодируем строку с именем
                                             ism_name = WebUtility.HtmlDecode(t_chunk.oHTML).Trim();
 
-                                            // Получим инфо об имени
-                                            IsmModel name = ParseAndGetName(letter, ism_name);
+                                            if (ism_name != null && ism_name.Length > 0)
+                                                // добавим имя в список
+                                                parsedNames.Add(ism_name);
 
-                                            if (name != null)
+                                            // Получим инфо об имени
+                                            //IsmModel name = ParseAndGetName(letter, ism_name);
+
+                                            /*if (name != null)
                                             {
                                                 // добавим имя в список
                                                 parsedNames.Add(name);
-                                            }
+                                            }*/
                                         }
                                     }
                                 }
@@ -302,10 +365,13 @@ namespace IsmUzParser
         private IsmModel ParseAndGetName(string letter, string name)
         {
             // Отправить GET запрос и получить байты страницы
-            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/names/" + WebUtility.UrlEncode(name));
+            //byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/names/" + WebUtility.UrlEncode(name));
+            byte[] pageBytes = http.SendGetRequest(ismUzUrl + "/names/" + name.Replace("‘", Uri.EscapeUriString("‘")));
 
             if (pageBytes != null)
             {
+                string page = Encoding.UTF8.GetString(pageBytes);
+
                 IsmModel parsedName = null;
 
                 parser.Init(pageBytes);
@@ -322,19 +388,19 @@ namespace IsmUzParser
                 bool found = false;
 
                 // начать парсинг
-                while ((chunk = parser.ParseNext()) != null && !found)
+                while (!found && (chunk = parser.ParseNext()) != null )
                 {
                     if (chunk.oType == HTMLchunkType.OpenTag)
                     {
                         if (chunk.sTag.Equals("div", StringComparison.InvariantCultureIgnoreCase)
-                            && chunk.GetParamValue("class").Equals("male names"))
+                            && chunk.GetParamValue("class").Contains("male") && chunk.GetParamValue("class").Contains("names"))
                         {
                             // получим пол
-                            ism_gender = chunk.GetParamValue("class").Equals("female") ? GENDER.FEMALE : GENDER.MALE;
+                            ism_gender = chunk.GetParamValue("class").Contains("female") ? GENDER.FEMALE : GENDER.MALE;
 
                             chunk = null;
 
-                            while ((chunk = parser.ParseNext()) != null && !found)
+                            while (!found && (chunk = parser.ParseNext()) != null)
                             {
                                 if (chunk.oType == HTMLchunkType.OpenTag)
                                 {
@@ -355,6 +421,7 @@ namespace IsmUzParser
                                             // значение
                                         case "p":
                                             t_chunk = parser.ParseNext();
+                                            t_chunk = parser.ParseNext(); // double <p> tag
 
                                             if (t_chunk != null && t_chunk.oType == HTMLchunkType.Text)
                                             {

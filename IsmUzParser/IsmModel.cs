@@ -18,7 +18,7 @@ namespace IsmUzParser
     /// <summary>
     /// Информация об имени
     /// </summary>
-    class IsmModel
+    public class IsmModel
     {
         /// <summary>
         /// Начальная буква имени
