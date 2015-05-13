@@ -43,6 +43,7 @@
             this.MessageList = new System.Windows.Forms.ListView();
             this.MessageListInfoColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.StatusProgressLabel = new System.Windows.Forms.Label();
+            this.RefreshButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // ParseButton
@@ -77,9 +78,9 @@
             // 
             this.FilterText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.FilterText.Location = new System.Drawing.Point(12, 320);
+            this.FilterText.Location = new System.Drawing.Point(93, 320);
             this.FilterText.Name = "FilterText";
-            this.FilterText.Size = new System.Drawing.Size(742, 20);
+            this.FilterText.Size = new System.Drawing.Size(661, 20);
             this.FilterText.TabIndex = 5;
             this.FilterText.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FilterText_KeyUp);
             // 
@@ -178,11 +179,22 @@
             this.StatusProgressLabel.Text = "0%";
             this.StatusProgressLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // RefreshButton
+            // 
+            this.RefreshButton.Location = new System.Drawing.Point(12, 318);
+            this.RefreshButton.Name = "RefreshButton";
+            this.RefreshButton.Size = new System.Drawing.Size(75, 23);
+            this.RefreshButton.TabIndex = 10;
+            this.RefreshButton.Text = "Refresh";
+            this.RefreshButton.UseVisualStyleBackColor = true;
+            this.RefreshButton.Click += new System.EventHandler(this.RefreshButton_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(847, 563);
+            this.Controls.Add(this.RefreshButton);
             this.Controls.Add(this.StatusProgressLabel);
             this.Controls.Add(this.MessageList);
             this.Controls.Add(this.NamesTable);
@@ -194,6 +206,7 @@
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Ism.Uz Parser";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -216,6 +229,7 @@
         private System.Windows.Forms.ColumnHeader MessageListInfoColumn;
         private System.Windows.Forms.Label StatusProgressLabel;
         private System.Windows.Forms.ColumnHeader NamesTableOriginColumn;
+        private System.Windows.Forms.Button RefreshButton;
     }
 }
 

@@ -57,7 +57,7 @@ namespace IsmUzParser
         /// <param name="origin">Происхождение</param>
         /// <returns>Возвратит список <c>IList&lt;IsmModel&gt;</c> при успешном выполнении, 
         /// или <c>null</c> в другом случае</returns>
-        IList<IsmModel> GetFilteredIsmList(string letter, string name, GENDER gender, string meaning, string origin);
+        IList<IsmModel> GetFilteredIsmList(string letter, string name, string gender, string meaning, string origin);
         /// <summary>
         /// Создать запись IsmModel в БД
         /// </summary>

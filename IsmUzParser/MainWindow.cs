@@ -12,7 +12,9 @@ namespace IsmUzParser
 {
     public partial class MainWindow : Form
     {
-        IsmUzBackgroundParser parser;
+        private const string ISM_DATABASE_NAME = "ism";
+        IIsmDataService dataService = null;
+        IsmUzBackgroundParser parser = null;
         List<IsmModel> parsedList;
 
         public MainWindow()
@@ -20,6 +22,29 @@ namespace IsmUzParser
             InitializeComponent();
             //parser = new IsmUzBackgroundParser("http://ism.uz", true, "192.168.0.2:3128");
             parser = new IsmUzBackgroundParser("http://ism.uz", true, true);
+            dataService = new SqliteIsmDataService();
+
+            // Пробуем подключится к БД
+            if (!dataService.Connect(ISM_DATABASE_NAME, "", ""))
+            {
+                // не получилось подключится, попробуем создать БД и повторить подключение
+                if (dataService.CreateDatabase(ISM_DATABASE_NAME))
+                {
+                    // не получилось подключится, покажем сообщение об ошибке и закроем окно
+                    if (!dataService.Connect(ISM_DATABASE_NAME, "", ""))
+                    {
+                        MessageBox.Show("Не удалось подключится к БД"
+                            , "Ошибка подключения"
+                            , MessageBoxButtons.OK
+                            , MessageBoxIcon.Error);
+
+                        this.Close();
+                    }
+                }
+            }
+
+            // создадим модель данных, если её нет
+            dataService.CreateDataModelIfNotExists();
         }
 
         private void AddStatusMessage(string message, WORKER_STATE_STATUS status)
@@ -100,7 +125,16 @@ namespace IsmUzParser
             else
             {
                 parsedList = (List<IsmModel>)parser.GetIsmList();
-                UpdateNamesTable(parsedList);
+
+                dataService.DeleteAllIsm();
+
+                foreach (IsmModel ism in parsedList)
+                {
+                    dataService.CreateIsm(ism);
+                }
+
+                RefreshButton_Click(RefreshButton, new EventArgs());
+                //UpdateNamesTable(parsedList);
             }
         }
 
@@ -112,7 +146,7 @@ namespace IsmUzParser
 
         private void FindButton_Click(object sender, EventArgs e)
         {
-            if (parsedList == null)
+            /*if (parsedList == null)
                 return;
 
             List<IsmModel> filteredList = null;
@@ -126,13 +160,28 @@ namespace IsmUzParser
                 filteredList = (List<IsmModel>)parsedList.Where(a => a.Name.Contains(FilterText.Text)).ToList();
             }
 
-            UpdateNamesTable(filteredList);
+            UpdateNamesTable(filteredList);*/
+
+            UpdateNamesTable(dataService.GetFilteredIsmList(null, FilterText.Text, null, null, null));
         }
 
         private void FilterText_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
                 FindButton_Click(this, e);
+        }
+
+        private void RefreshButton_Click(object sender, EventArgs e)
+        {
+            //parsedList = (List<IsmModel>)dataService.GetAllIsm();
+            //UpdateNamesTable(parsedList);
+            UpdateNamesTable(dataService.GetAllIsm());
+        }
+
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (dataService != null)
+                dataService.Disconnect();
         }
     }
 }

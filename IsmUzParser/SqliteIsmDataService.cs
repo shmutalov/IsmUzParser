@@ -29,14 +29,20 @@ namespace IsmUzParser
         /// <inheritdoc />
         public bool Connect(string dataSourceName, string userName, string password)
         {
-            string connectionString = String.Format("Data Source={0};Version=3;", dataSourceName);
+            Disconnect();
 
+            string sqliteDataSourceName = dataSourceName.EndsWith(".sqlite", StringComparison.InvariantCultureIgnoreCase) ? dataSourceName : dataSourceName + ".sqlite";
+
+            string connectionString = String.Format("Data Source={0};Version=3;", sqliteDataSourceName);
+
+            connection = new SQLiteConnection();
             connection.ConnectionString = connectionString;
 
             try
             {
                 connection.Open();
-                    
+                connected = true;
+
                 return true;
             }
             catch (Exception ex)
@@ -45,7 +51,7 @@ namespace IsmUzParser
             }
             finally
             {
-                if (connection != null)
+                if (!connected && connection != null)
                 {
                     connection = null;
                 }
@@ -67,6 +73,8 @@ namespace IsmUzParser
         {
             try
             {
+                string sqliteDataSourceName = name.EndsWith(".sqlite", StringComparison.InvariantCultureIgnoreCase) ? name : name + ".sqlite";
+
                 SQLiteConnection.CreateFile(name);
 
                 return true;
@@ -145,10 +153,11 @@ namespace IsmUzParser
 
                         ismList.Add(
                             new IsmModel(row["letter"]
-                                , row["gender"].Equals("F") ? GENDER.FEMALE : GENDER.MALE
-                                , row["name"]
-                                , row["meaning"]
-                                , row["origin"])
+                                    , row["gender"].Equals("F") ? GENDER.FEMALE : GENDER.MALE
+                                    , row["name"]
+                                    , row["origin"]
+                                    , row["meaning"]
+                                )
                             );
                     }
 
@@ -237,7 +246,7 @@ namespace IsmUzParser
             return null;
         }
         /// <inheritdoc />
-        public IList<IsmModel> GetFilteredIsmList(string letter, string name, GENDER gender, string meaning, string origin)
+        public IList<IsmModel> GetFilteredIsmList(string letter, string name, string gender, string meaning, string origin)
         {
             if (IsConnected)
             {
@@ -262,7 +271,8 @@ namespace IsmUzParser
                 command.CommandType = System.Data.CommandType.Text;
 
                 command.Parameters.Add(new SQLiteParameter("@letter", letter));
-                command.Parameters.Add(new SQLiteParameter("@gender", (gender == GENDER.MALE) ? "M" : "F"));
+                //command.Parameters.Add(new SQLiteParameter("@gender", (gender == GENDER.MALE) ? "M" : "F"));
+                command.Parameters.Add(new SQLiteParameter("@gender", gender));
                 command.Parameters.Add(new SQLiteParameter("@name", name));
                 command.Parameters.Add(new SQLiteParameter("@meaning", meaning));
                 command.Parameters.Add(new SQLiteParameter("@origin", origin));
