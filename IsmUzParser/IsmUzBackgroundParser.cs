@@ -146,8 +146,8 @@ namespace IsmUzParser
                 // Получем имена каждой буквы
                 foreach (string letter in letters)
                 {
-                    if (letter != "O‘")
-                        continue;
+                    /*if (letter != "O‘")
+                        continue;*/
 
                     state.SetState(percentage, String.Format("Parsing names for letter {0}...", letter), WORKER_STATE_STATUS.NORMAL);
 
@@ -186,8 +186,8 @@ namespace IsmUzParser
                                 state.SetState(percentage, String.Format("[{0} of {1} : {2}%] NOT PARSED name: {3}", parsedNamesCount, parsedNames.Count, (parsedNamesCount * 100 / parsedNames.Count), name), WORKER_STATE_STATUS.WARNING);
                             }
 
-                            if (parsedNamesCount > 5)
-                                break;
+                            /*if (parsedNamesCount > 5)
+                                break;*/
                         }
 
                         ismList.AddRange(parsedIsmList);
