@@ -47,7 +47,7 @@ namespace IsmUzParser
             if (worker != null && worker.WorkerReportsProgress)
             {
                 worker.ReportProgress(progressPercentage, this);
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep(1); // TODO fix this
             }
         }
     }
