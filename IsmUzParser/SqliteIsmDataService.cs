@@ -220,8 +220,9 @@ namespace IsmUzParser
                         ism = new IsmModel(row["letter"]
                                 , row["gender"].Equals("F") ? GENDER.FEMALE : GENDER.MALE
                                 , row["name"]
+                                , row["origin"]
                                 , row["meaning"]
-                                , row["origin"]);
+                                );
                     }
 
                     return ism;
@@ -293,8 +294,9 @@ namespace IsmUzParser
                             new IsmModel(row["letter"]
                                 , row["gender"].Equals("F") ? GENDER.FEMALE : GENDER.MALE
                                 , row["name"]
+                                , row["origin"]
                                 , row["meaning"]
-                                , row["origin"])
+                                )
                             );
                     }
 
