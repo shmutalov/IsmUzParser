@@ -45,7 +45,10 @@ namespace IsmUzParser
                     logWriteCounter++;
 
                     if (logWriteCounter >= 32)
+                    {
                         log.Flush();
+                        logWriteCounter = 0;
+                    }
                 }
                 catch (Exception ex)
                 { }
@@ -54,7 +57,7 @@ namespace IsmUzParser
             if (worker != null && worker.WorkerReportsProgress)
             {
                 worker.ReportProgress(progressPercentage, this);
-                System.Threading.Thread.Sleep(1); // TODO fix this
+                System.Threading.Thread.Sleep(10); // TODO fix this
             }
         }
     }

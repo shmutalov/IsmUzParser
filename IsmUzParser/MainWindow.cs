@@ -64,7 +64,7 @@ namespace IsmUzParser
                     break;
             }
 
-            if (MessageList.Items.Count > 10)
+            if (MessageList.Items.Count > 20)
                 MessageList.Items.RemoveAt(0);
 
             li.EnsureVisible();
