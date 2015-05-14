@@ -214,7 +214,7 @@ namespace IsmUzParser
         {
             // Отправить GET запрос и получить байты страницы
             byte[] pageBytes = http.SendGetRequest(ismUzUrl);
-            string page = Encoding.UTF8.GetString(pageBytes);
+            //string page = Encoding.UTF8.GetString(pageBytes);
 
             if (pageBytes != null)
             {
