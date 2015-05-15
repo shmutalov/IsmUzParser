@@ -21,7 +21,8 @@ namespace IsmUzParser
         {
             InitializeComponent();
             //parser = new IsmUzBackgroundParser("http://ism.uz", true, "192.168.0.2:3128");
-            parser = new IsmUzBackgroundParser("http://ism.uz", true, true);
+            //parser = new IsmUzBackgroundParser("http://ism.uz", true, true);
+            parser = new IsmUzBackgroundParser("http://ism.uz", false, "");
             dataService = new SqliteIsmDataService();
 
             // Пробуем подключится к БД
